@@ -1,7 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart' as sql;
-import 'package:sqflite/sql.dart';
-import 'package:sqflite/sqlite_api.dart';
 
 //=========================================
 // Creating table 'cars' / setting up table
@@ -24,7 +22,7 @@ class SqlHelper {
   }
 
 //================================================================
-// Checking if table exists, creting it and linking it to 'cars.db
+// Checking if table exists, creating it, and linking it to 'cars.db'
 //================================================================
   static Future<sql.Database> db() async {
     return sql.openDatabase(
@@ -37,7 +35,7 @@ class SqlHelper {
   }
 
 //=========================================
-// Loading data to database, creating a car
+// POST Method (Create a new car in the db)
 //=========================================
   static Future<int> createCar(
       String make,
@@ -71,25 +69,25 @@ class SqlHelper {
     return id;
   }
 
-//=====================================
-// Obtaining all cars from the database
-//=====================================
+//===============================
+// GET All cars from the database
+//===============================
   static Future<List<Map<String, dynamic>>> getCars() async {
     final db = await SqlHelper.db();
     return db.query('cars', orderBy: "id DESC"); //.query (GET)
   }
 
-//==================================
-// Obtaining a car from the database
-//==================================
+//============================
+// GET a car from the database
+//============================
   static Future<List<Map<String, dynamic>>> getCar(int id) async {
     final db = await SqlHelper.db();
     return db.query('cars', where: 'id = ?', whereArgs: [id], limit: 1);
   }
 
-//===========
-// PUT Method
-//===========
+//====================================
+// PUT Method (Update a car in the db)
+//====================================
   static Future<int> updateCar(
       int id,
       String make,
@@ -112,9 +110,21 @@ class SqlHelper {
       'image': image,
     };
 
-    final result = await db.update('cars', data, where: 'id = ?', whereArgs: [id]);
+    final result =
+        await db.update('cars', data, where: 'id = ?', whereArgs: [id]);
 
     return result;
   }
 
+//=======================================
+// DELETE Method (Delete a car in the db)
+//=======================================
+  static Future<void> deleteCar(int id) async {
+    final db = await SqlHelper.db();
+    try {
+      await db.delete('cars', where: 'id = ?', whereArgs: [id]);
+    } catch (err) {
+      debugPrint("Something went wrong while deleting a car: $err");
+    }
+  }
 }
