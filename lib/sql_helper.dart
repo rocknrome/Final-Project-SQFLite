@@ -134,4 +134,6 @@ class SqlHelper {
       debugPrint("Something went wrong while deleting a car: $err");
     }
   }
+
+  static insertCar(Map<String, Object> map) {}
 }

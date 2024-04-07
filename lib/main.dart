@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'sql_helper.dart';
 import 'package:logger/logger.dart';
 
@@ -73,67 +72,104 @@ class _MyHomePageState extends State<MyHomePage> {
     }
 
     showModalBottomSheet(
-        context: context,
-        elevation: 5,
-        isScrollControlled: true,
-        builder: (_) => Container(
-            padding: EdgeInsets.only(
-              top: 15,
-              left: 15,
-              right: 15,
-              bottom: MediaQuery.of(context).viewInsets.bottom + 15,
+      context: context,
+      elevation: 5,
+      isScrollControlled: true,
+      builder: (_) => Container(
+        padding: EdgeInsets.only(
+          top: 15,
+          left: 15,
+          right: 15,
+          bottom: MediaQuery.of(context).viewInsets.bottom + 15,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            TextField(
+              controller: _makeController,
+              decoration: const InputDecoration(labelText: 'Make'),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                TextField(
-                  controller: _makeController,
-                  decoration: const InputDecoration(labelText: 'Make'),
-                ),
-                TextField(
-                  controller: _modelController,
-                  decoration: const InputDecoration(labelText: 'Model'),
-                ),
-                TextField(
-                  controller: _yearController,
-                  decoration: const InputDecoration(labelText: 'Year'),
-                  keyboardType: TextInputType.number,
-                ),
-                TextField(
-                  controller: _colorController,
-                  decoration: const InputDecoration(labelText: 'Color'),
-                ),
-                TextField(
-                  controller: _mileageController,
-                  decoration: const InputDecoration(labelText: 'Mileage'),
-                  keyboardType: TextInputType.number,
-                ),
-                TextField(
-                  controller: _priceController,
-                  decoration: const InputDecoration(labelText: 'Price'),
-                  keyboardType: TextInputType.number,
-                ),
-                TextField(
-                  controller: _descriptionController,
-                  decoration: const InputDecoration(labelText: 'Description'),
-                ),
-                const SizedBox(height: 20),
-                TextField(
-                  controller: _imageController,
-                  decoration: const InputDecoration(labelText: 'Image'),
-                ),
-                const SizedBox(height: 15),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    _refreshJournals();
-                  },
-                  child: const Text('Save'),
-                ),
-              ],
-            )));
-  } // _showForm  method    end
+            TextField(
+              controller: _modelController,
+              decoration: const InputDecoration(labelText: 'Model'),
+            ),
+            TextField(
+              controller: _yearController,
+              decoration: const InputDecoration(labelText: 'Year'),
+              keyboardType: TextInputType.number,
+            ),
+            TextField(
+              controller: _colorController,
+              decoration: const InputDecoration(labelText: 'Color'),
+            ),
+            TextField(
+              controller: _mileageController,
+              decoration: const InputDecoration(labelText: 'Mileage'),
+              keyboardType: TextInputType.number,
+            ),
+            TextField(
+              controller: _priceController,
+              decoration: const InputDecoration(labelText: 'Price'),
+              keyboardType: TextInputType.number,
+            ),
+            TextField(
+              controller: _descriptionController,
+              decoration: const InputDecoration(labelText: 'Description'),
+            ),
+            const SizedBox(height: 20),
+            TextField(
+              controller: _imageController,
+              decoration: const InputDecoration(labelText: 'Image'),
+            ),
+            const SizedBox(height: 15),
+            ElevatedButton(
+              onPressed: () async {
+                if (id != null) {
+                  await SqlHelper.updateCar(
+                    id,
+                    _makeController.text,
+                    _modelController.text,
+                    int.parse(_yearController.text),
+                    _colorController.text,
+                    int.parse(_mileageController.text),
+                    int.parse(_priceController.text),
+                    _descriptionController.text,
+                    _imageController.text,
+                  );
+                } else {
+                  await SqlHelper.createCar(
+                    _makeController.text,
+                    _modelController.text,
+                    int.parse(_yearController.text),
+                    _colorController.text,
+                    int.parse(_mileageController.text),
+                    int.parse(_priceController.text),
+                    _descriptionController.text,
+                    _imageController.text,
+                  );
+                }
+
+                _makeController.text = '';
+                _modelController.text = '';
+                _yearController.text = '';
+                _colorController.text = '';
+                _mileageController.text = '';
+                _priceController.text = '';
+                _descriptionController.text = '';
+                _imageController.text = '';
+
+                if (!mounted) return;
+                Navigator.of(context).pop();
+                _refreshJournals();
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -141,30 +177,36 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: const Text('SQL Lite'),
       ),
-      body: ListView.builder(
-        itemCount: _journals.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            title: Text(_journals[index]['make']),
-            subtitle: Text(_journals[index]['model']),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.edit),
-                  onPressed: () => _showForm(_journals[index]['id']),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.delete),
-                  onPressed: () {
-                    SqlHelper.deleteCar(_journals[index]['id']);
-                    _refreshJournals();
-                  },
-                ),
-              ],
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView.builder(
+              itemCount: _journals.length,
+              itemBuilder: (context, index) {
+                return ListTile(
+                  title: Text(_journals[index]['make']),
+                  subtitle: Text(_journals[index]['model']),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: const Icon(Icons.edit),
+                        onPressed: () => _showForm(_journals[index]['id']),
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.delete),
+                        onPressed: () {
+                          SqlHelper.deleteCar(_journals[index]['id']);
+                          _refreshJournals();
+                        },
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
-          );
-        },
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showForm(null),
