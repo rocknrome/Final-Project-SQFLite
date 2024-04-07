@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart' as sql;
+import 'package:logger/logger.dart';
 
 //=========================================
 // Creating table 'cars' / setting up table
@@ -21,6 +22,7 @@ class SqlHelper {
     );
   }
 
+  static final logger = Logger();
 //================================================================
 // Checking if table exists, creating it, and linking it to 'cars.db'
 //================================================================
@@ -29,6 +31,7 @@ class SqlHelper {
       'cars.db',
       version: 1,
       onCreate: (sql.Database database, int version) async {
+        logger.i("..creating a table..");
         await createTable(database);
       },
     );
@@ -46,6 +49,7 @@ class SqlHelper {
       int price,
       String description,
       String image) async {
+    logger.i("..creating a new car..");
     final db = await SqlHelper.db();
 
 //===============================================
@@ -73,6 +77,7 @@ class SqlHelper {
 // GET All cars from the database
 //===============================
   static Future<List<Map<String, dynamic>>> getCars() async {
+    logger.i("..obtaining all cars..");
     final db = await SqlHelper.db();
     return db.query('cars', orderBy: "id DESC"); //.query (GET)
   }
@@ -81,6 +86,7 @@ class SqlHelper {
 // GET a car from the database
 //============================
   static Future<List<Map<String, dynamic>>> getCar(int id) async {
+    logger.i("..getting your car..");
     final db = await SqlHelper.db();
     return db.query('cars', where: 'id = ?', whereArgs: [id], limit: 1);
   }
@@ -120,6 +126,7 @@ class SqlHelper {
 // DELETE Method (Delete a car in the db)
 //=======================================
   static Future<void> deleteCar(int id) async {
+    logger.i("..deleting your car..");
     final db = await SqlHelper.db();
     try {
       await db.delete('cars', where: 'id = ?', whereArgs: [id]);
