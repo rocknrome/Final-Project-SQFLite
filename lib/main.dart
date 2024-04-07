@@ -43,7 +43,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   void _refreshJournals() async {
     final data = await SqlHelper.getCars();
-    logger.i("Number of journals: ${data.length}");
+    logger
+        .i("Number of journals: ${data.length}"); // Logging the number of items
     setState(() {
       _journals = data;
       _isLoading = false;
